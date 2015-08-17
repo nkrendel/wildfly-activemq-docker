@@ -1,0 +1,25 @@
+# Mark the commands below to be run as a batch
+batch
+
+# Add postgres module
+module add --name=org.postgres --resources=/tmp/postgresql-POSTGRES_VERSION.jdbc4.jar --dependencies=javax.api,javax.transaction.api
+
+# Add Postgres driver
+/subsystem=datasources/jdbc-driver=postgres:add(driver-name="postgres",driver-module-name="org.postgres",driver-class-name=org.postgresql.Driver)
+
+# Add ActiveMQ resource adapter
+/subsystem="resource-adapters"/resource-adapter="activemq-ra.rar":add(archive="activemq-ra.rar",transaction-support="XATransaction")
+/subsystem="resource-adapters"/resource-adapter="activemq-ra.rar"/config-properties="ServerUrl":add(value="vm://localhost")
+/subsystem="resource-adapters"/resource-adapter="activemq-ra.rar"/admin-objects="sample_queue":add(class-name="org.apache.activemq.command.ActiveMQQueue",jndi-name="java:/activemq/sample_queue",use-java-context="true")
+/subsystem="resource-adapters"/resource-adapter="activemq-ra.rar"/admin-objects="sample_queue"/config-properties="PhysicalName":add(value="queue.sample_queue")
+/subsystem="resource-adapters"/resource-adapter="activemq-ra.rar"/connection-definitions="ActiveMQConnectionFactoryPool":add(class-name="org.apache.activemq.ra.ActiveMQManagedConnectionFactory",enabled="true",jndi-name="java:/activemq/ConnectionFactory",max-pool-size="20",min-pool-size="1",no-recovery="false",recovery-username="user",recovery-password="password",use-ccm="true",use-java-context="true")
+
+# Add support for http-remoting-jmx protocol
+/subsystem=ee:write-attribute(name="global-modules",value=[{"name" => "org.jboss.remoting-jmx","slot" => "main"}])
+
+# Change logging level for ActiveMQ class to avoid lots of the same message in the log:
+# 03:18:02,553 INFO  [org.apache.activemq.broker.TransportConnector] (Periodic Recovery) Connector vm://localhost started
+/subsystem=logging/logger=org.apache.activemq.broker.TransportConnector:add(level=WARN)
+
+# Execute the batch
+run-batch
