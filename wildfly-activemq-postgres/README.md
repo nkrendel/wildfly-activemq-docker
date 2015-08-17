@@ -8,5 +8,5 @@ This docker file is based on the jboss/base-jdk:7 image and adds the following:
 
 It will also add an admin user with sample credentials admin/admin.
 
-The ActiveMQ web console is accessible via http://{host}:8080/amq-console.
+The ActiveMQ web console is accessible via `http://{host}:8080/amq-console`.
 
